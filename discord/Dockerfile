@@ -17,4 +17,4 @@ RUN npm install
 CMD [ "node", "stripeWebhook.js" ]
 
 # Exposing server port
-EXPOSE 4242
+EXPOSE 4242 6379
