@@ -58,8 +58,8 @@ app.post('/webhook', bodyParser.raw({type: 'application/json'}), async (request,
       }
     );
     const lineItems = sessionWithLineItems.line_items;
-    var quantity = lineItems[0].quantity
-    var paymentLinkID = event.data.payment_link
+    var quantity = lineItems.data[0].quantity
+    var paymentLinkID = event.data.object.payment_link
     // Fulfill the purchase...
     await fulfillOrder(paymentLinkID, quantity)
   }
