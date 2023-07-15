@@ -18,7 +18,8 @@ const stripeServer = stripe(process.env.STRIPE_CLIENT_SECRET)
 // Handle openai completion content json parse error
 // Done: do TPM limit handling using redis timeseries
 // store cost, token used, API caller details (like credit left at the time of call, user id, name), input and output of each and every interaction (API call) with openai on mongodb
-// Store credit management data on redis hash table but store transaction details on mongodb
+// Done: Store credit management data on redis hash table
+// store transaction details on mongodb
 // Optional: create a gated access to discord bot, use command (only by admin) to generate a new access uuid code, that user has to provide before using the bot
 // Enable text streaming with openai calls
 // Done: Take discord text character limit (2000) into consideration
