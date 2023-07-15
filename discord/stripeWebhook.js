@@ -29,7 +29,6 @@ const app = require('express')();
 const bodyParser = require('body-parser');
 
 const fulfillOrder = async (payment_link_id, quantity) => {
-  var streamValue = JSON.stringify({"paymentLinkID": payment_link_id, "quantity": quantity});
   var user_id = await redisClient.hGet(config.redisPaymentKey, payment_link_id)
   var credits_left = parseInt(await redisClient.hGet(config.redisCreditsKey, user_id))
   credits_left += quantity*5;

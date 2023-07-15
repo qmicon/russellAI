@@ -80,17 +80,32 @@ client.on("messageCreate", async message => {
         return
     }
 
-    if(message.content === "/buy") {
+    if(message.content.startsWith("/buy ")) {
+        var quantity = message.content.split("/buy ")[1]
+        quantity = parseInt(quantity)
         const paymentLink = await stripeServer.paymentLinks.create({
             line_items: [
               {
                 price: config.fiveBotCreditsPriceID,
-                quantity: 1,
+                quantity: quantity,
               },
             ],
           });
         await redisClient.hSet(config.redisPaymentKey, paymentLink.id, user_id);
-        await message.channel.send(paymentLink.url);
+        await message.channel.send(`${paymentLink.url}\n\nPlease make the payment to buy credits. send '/balance' to check your credit balance`);
+        return
+    }
+
+    if(message.content === "/balance") {
+        var balance = await redisClient.hGet(config.redisCreditsKey, user_id);
+        await message.channel.send(`You have ${balance} queries left.`)
+        return
+    }
+
+    var creditsLeft = await redisClient.hGet(config.redisCreditsKey, user_id)
+    creditsLeft = parseInt(creditsLeft)
+    if(creditsLeft <= 0) {
+        await message.channel.send("You don't have credits to make a query, send '/buy <quantity>' to buy credits");
         return
     }
     var message_time = message.createdTimestamp
@@ -155,6 +170,8 @@ client.on("messageCreate", async message => {
         messages: [{role: "user", content: promptbuild}],
         temperature: 0.35
       });
+
+    await redisClient.hSet(config.redisCreditsKey, user_id, creditsLeft - 1)
 
     var reply = JSON.parse(aicompletion.data.choices[0].message.content) // sometimes, this will throw error, reduce the temperature to counteract, but do handle this issue
     var russellMonologue = reply.Monologue
