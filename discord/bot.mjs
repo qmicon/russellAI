@@ -8,7 +8,10 @@ import splitMessageBySentence from "./utils.mjs"
 import dotenv from 'dotenv';
 import { Tiktoken } from "tiktoken/lite";
 import cl100k_base from "tiktoken/encoders/cl100k_base.json"  assert { type: "json" };
+import stripe from 'stripe';
+
 dotenv.config();
+const stripeServer = stripe(process.env.STRIPE_CLIENT_SECRET)
 // Done: Use redis hash table for managing cooldown
 // do exponential backoff error handling for openai
 // do error handling for discord rate (exponential backoff can be used)
@@ -41,7 +44,8 @@ const redisClient = redis.createClient({
     socket: {
         host: process.env.SERVER_IP,
         port: process.env.REDIS_PORT
-    }
+    },
+    password: process.env.REDIS_PASSWORD
 });
 
 redisClient.on('error', err => console.log('Redis Server Error', err));
@@ -73,6 +77,20 @@ client.on("messageCreate", async message => {
         if(await redisClient.hExists(config.redisSummaryKey, user_id) )
         await redisClient.hDel(config.redisSummaryKey, user_id)
         await message.channel.send("You have started a new conversation, please ask your questions!")
+        return
+    }
+
+    if(message.content === "/buy") {
+        const paymentLink = await stripeServer.paymentLinks.create({
+            line_items: [
+              {
+                price: config.fiveBotCreditsPriceID,
+                quantity: 1,
+              },
+            ],
+          });
+        await redisClient.hSet(config.redisPaymentKey, paymentLink.id, user_id);
+        await message.channel.send(paymentLink.url);
         return
     }
     var message_time = message.createdTimestamp

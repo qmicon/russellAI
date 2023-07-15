@@ -4,7 +4,10 @@
     "redisSummaryKey": "bot-last-message-summary-discord",
     "chatgptTPM": 59000,
     "redisTokenTSKey": "openai-token-used-per-query",
+    "redisPaymentKey": "payment-link-id-to-user-id",
+    "redisCreditsKey": "user-id-credits-left",
     "chatGPT4kInputPricePer1kTokensInUSD": 0.0015,
     "chatGPT4kOutputPricePer1kTokensInUSD": 0.0020,
-    "discordCharacterLimit": 2000
+    "discordCharacterLimit": 2000,
+    "fiveBotCreditsPriceID": "price_1NNJIVSEJHL3ATe2kvP1QO5l"
 }
