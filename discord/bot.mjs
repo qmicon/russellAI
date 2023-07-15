@@ -101,9 +101,10 @@ client.on("messageCreate", async message => {
         await message.channel.send(`You have ${balance} queries left.`)
         return
     }
-
-    var creditsLeft = await redisClient.hGet(config.redisCreditsKey, user_id)
-    creditsLeft = parseInt(creditsLeft)
+    var creditsLeft = 0
+    if (await redisClient.hExists(config.redisCreditsKey, user_id))
+    {creditsLeft = await redisClient.hGet(config.redisCreditsKey, user_id)
+    creditsLeft = parseInt(creditsLeft)}
     if(creditsLeft <= 0) {
         await message.channel.send("You don't have credits to make a query, send '/buy <quantity>' to buy credits");
         return
