@@ -1,0 +1,14 @@
+{
+    "builds": [
+        {
+            "src": "stripeWebhook.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+          "src": "/(.*)",
+          "dest": "/"
+        }
+    ]
+  }
