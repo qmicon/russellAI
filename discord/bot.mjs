@@ -86,7 +86,7 @@ client.on("messageCreate", async message => {
         const paymentLink = await stripeServer.paymentLinks.create({
             line_items: [
               {
-                price: config.fiveBotCreditsPriceID,
+                price: config.botCreditsPriceID,
                 quantity: quantity,
               },
             ],

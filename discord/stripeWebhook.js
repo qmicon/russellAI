@@ -31,7 +31,9 @@ const bodyParser = require('body-parser');
 const fulfillOrder = async (payment_link_id, quantity) => {
   var user_id = await redisClient.hGet(config.redisPaymentKey, payment_link_id)
   var credits_left = parseInt(await redisClient.hGet(config.redisCreditsKey, user_id))
-  credits_left += quantity*5;
+  if(credits_left)
+  credits_left += quantity;
+  else credits_left = quantity
   await redisClient.hSet(config.redisCreditsKey, user_id, credits_left)
   console.log("Fulfilling order", payment_link_id, quantity);
 }
