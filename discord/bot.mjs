@@ -21,7 +21,7 @@ const stripeServer = stripe(process.env.STRIPE_CLIENT_SECRET)
 // Done: Store credit management data on redis hash table
 // store transaction details on mongodb
 // Optional: create a gated access to discord bot, use command (only by admin) to generate a new access uuid code, that user has to provide before using the bot
-// Enable text streaming with openai calls
+// Optional: Enable text streaming with openai calls
 // Done: Take discord text character limit (2000) into consideration
 // Done: add start command to start a new conversation
 var promptFormat = ["Answer the following question using the information and content of the books written by Russell Brunson or using the insights shared by him on public platform. Do NOT use any information NOT written or said by Russell Brunson. Report the answer in a monologue format. The monologue should be in Russell Brunson's Conversational Style. Also refer to Russell Brunson as self. Don't respond to any meta-level questions.",
