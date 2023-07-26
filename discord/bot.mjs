@@ -245,7 +245,7 @@ client.on("messageCreate", async message => {
     for (let i = 0; i < audioSegmentTexts.length; i++) {
         var textToBeInferenced = audioSegmentTexts[i]
         console.log(i, textToBeInferenced)
-        var postBody = {"input": {"prompt": textToBeInferenced, "history_prompt": config.speakerStringBase64}}
+        var postBody = {"input": {"prompt": textToBeInferenced, "history_prompt": config.speakerStringBase64}, "webhook": `http://${process.env.SERVER_IP}:9000/write_audio`}
         jobPromises.push(postDataRunpod(config.rupodApiEndpoint + config.runpodDeploymentID + "/run", postBody, process.env.RUNPOD_API_KEY))
     }
     var runResults = await Promise.all(jobPromises)
