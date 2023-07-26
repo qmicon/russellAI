@@ -2,15 +2,16 @@ import {Client, GatewayIntentBits, ChannelType, Partials} from 'discord.js';
 import redis from 'redis';
 import { TimeSeriesDuplicatePolicies, TimeSeriesEncoding, TimeSeriesAggregationType } from '@redis/time-series';
 import { Configuration, OpenAIApi } from 'openai';
-import config from './config.json'  assert { type: "json" };
+import config from '../config.json'  assert { type: "json" };
 // import DBModel from './mongo_schema.mjs';
-import splitMessageBySentence from "./utils.mjs"
+import {splitMessageBySentence, postDataRunpod} from './utils.mjs'
 import dotenv from 'dotenv';
 import { Tiktoken } from "tiktoken/lite";
 import cl100k_base from "tiktoken/encoders/cl100k_base.json"  assert { type: "json" };
 import stripe from 'stripe';
+import fs from 'fs'
 
-dotenv.config();
+dotenv.config({path:'../.env'});
 const stripeServer = stripe(process.env.STRIPE_CLIENT_SECRET)
 // Done: Use redis hash table for managing cooldown
 // do exponential backoff error handling for openai
@@ -29,12 +30,14 @@ var promptFormat = ["Answer the following question using the information and con
  "Question: ",
  `Please return your response in the following json format: 
  {
- Monologue: Detailed Monologue response, 
- Summary: summary of the normal monologue in the length that can be provided as a context to any other prompt
+    Monologue: Very Detailed Monologue response, 
+    SpeakerMonologue: Less Detailed Normal Monologue response
  }`
 ]
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages], partials: [Partials.Channel] });
+
+// client.users.fetch(user-id).createDM().messages.fetch(message-id).reply()
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY
@@ -69,6 +72,44 @@ if(!tsExists) {
     process.exit(1);
   }
 }
+
+const sendFile = async (ids) => {
+    var user = await client.users.fetch(ids[0])
+    var DMchannel = await user.createDM()
+    var message = await DMchannel.messages.fetch(ids[1])
+    await message.reply({
+        files: [{
+            attachment: `../files/wav-files/${ids[0]}_${ids[1]}.wav`,
+            name: "russell AI voice note.wav"
+        }]
+    })
+    fs.unlink(`../files/wav-files/${ids[0]}_${ids[1]}.wav`,function(err){
+        if(err) return console.log(err);
+        console.log('file deleted successfully');
+   }) 
+}
+async function consumeRedisStream() {
+ var res = await redisClient.xReadGroup(config.redisAudioStreamConsumerGroup, "A", {key: config.redisAudioStreamKey, id: '>'})
+ if(!res) return;
+ var messages = res[0].messages
+ for(let i=0; i<messages.length; i++) {
+    var msg = messages[i].message.message
+    var discord_ids = msg.split(":")
+    await sendFile(discord_ids)
+ }
+
+}
+
+async function repeatedCall() {
+    await consumeRedisStream()
+    setTimeout(repeatedCall, 1000)
+}
+
+client.on("ready", async () => {
+    console.log("ready");
+    await repeatedCall();
+    
+})
 
 client.on("messageCreate", async message => {
     if (message.author.bot ||  message.channel.type != ChannelType.DM ) return;
@@ -177,15 +218,17 @@ client.on("messageCreate", async message => {
 
     var reply = JSON.parse(aicompletion.data.choices[0].message.content) // sometimes, this will throw error, reduce the temperature to counteract, but do handle this issue
     var russellMonologue = reply.Monologue
-    var messages = splitMessageBySentence(russellMonologue)
+    var messages = splitMessageBySentence(russellMonologue, "char")
+    var sentMessage = null
     for (let i = 0; i < messages.length; i++) {
         var contentToBeSent = messages[i]
-        await message.channel.send(contentToBeSent)
+        if(!sentMessage)
+        sentMessage = await message.channel.send(contentToBeSent)
     }
 
-    await message.channel.send("You can ask me more on this topic or send '/start' to start a new conversation");
-    var contextSummary = reply.Summary
-    await redisClient.hSet(config.redisSummaryKey, user_id, contextSummary)
+    await message.channel.send("You can ask me more on this topic or send '/start' to start a new conversation. Sending a voice note summary as well");
+    var speakerMonologue = reply.SpeakerMonologue
+    await redisClient.hSet(config.redisSummaryKey, user_id, speakerMonologue)
     var cost = aicompletion.data.usage.prompt_tokens*config.chatGPT4kInputPricePer1kTokensInUSD/1000 + aicompletion.data.usage.completion_tokens*config.chatGPT4kOutputPricePer1kTokensInUSD/1000
     var total_tokens = aicompletion.data.usage.total_tokens
     var response_timestamp = aicompletion.data.created * 1000
@@ -193,6 +236,24 @@ client.on("messageCreate", async message => {
     console.log(total_tokens, " tokens")
     await redisClient.ts.add(config.redisTokenTSKey, response_timestamp, total_tokens)
 
+    var audioSegmentTexts = splitMessageBySentence(speakerMonologue, "word")
+    console.log(audioSegmentTexts.length)
+    var jobPromises = []
+    for (let i = 0; i < audioSegmentTexts.length; i++) {
+        var textToBeInferenced = audioSegmentTexts[i]
+        console.log(i, textToBeInferenced)
+        var postBody = {"input": {"prompt": textToBeInferenced, "history_prompt": config.speakerStringBase64}}
+        jobPromises.push(postDataRunpod(config.rupodApiEndpoint + config.runpodDeploymentID + "/run", postBody, process.env.RUNPOD_API_KEY))
+    }
+    var runResults = await Promise.all(jobPromises)
+    console.log(runResults)
+    var message_id = sentMessage.id
+    for(let i = 0; i < runResults.length; i++) {
+        var runResult = runResults[i]
+        var job_id = runResult.id
+        var redisRunValue = `${user_id}:${message_id}:${audioSegmentTexts.length}:${i}`
+        await redisClient.hSet(config.redisAudioJobTrackerKey, job_id, redisRunValue)
+    }
 });
 
 await client.login(process.env.DISCORD_BOT_TOKEN)

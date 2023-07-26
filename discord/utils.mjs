@@ -1,7 +1,7 @@
-import config from './config.json'  assert { type: "json" };
+import config from '../config.json'  assert { type: "json" };
+import fetch from 'node-fetch';
 
-export default function splitMessageBySentence(message) {
-    const maxCharacters = config.discordCharacterLimit;
+export const splitMessageBySentence = (message, mode) => {
     const sentenceBoundaryRegex = /[^\.!\?]+[\.!\?]+/g;
     const sentences = message.match(sentenceBoundaryRegex);
     const chunks = [];
@@ -9,9 +9,21 @@ export default function splitMessageBySentence(message) {
     let currentChunk = "";
     for (let i = 0; i < sentences.length; i++) {
       const sentence = sentences[i];
-      if ((currentChunk + sentence).length > maxCharacters) {
-        chunks.push(currentChunk.trim());
-        currentChunk = "";
+      if (mode === "char") {
+        const maxCharacters = config.discordCharacterLimit;
+        if ((currentChunk + sentence).length > maxCharacters) {
+          chunks.push(currentChunk.trim());
+          currentChunk = "";
+        }
+      }
+      else if (mode === "word") {
+        const maxWords = config.audioWordLimit
+        var checkSentence = currentChunk + sentence
+        var wordLen = checkSentence.split(/(\s)/).filter((x) => x.trim().length>0).length
+        if(wordLen > maxWords) {
+          chunks.push(currentChunk.trim());
+          currentChunk = "";
+        }
       }
       currentChunk += sentence;
     }
@@ -22,4 +34,20 @@ export default function splitMessageBySentence(message) {
     }
   
     return chunks;
+  }
+
+export const postDataRunpod = (url, data, token) => {
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .catch(error => {
+      console.error('Error posting data:', error);
+      throw error;
+    });
   }

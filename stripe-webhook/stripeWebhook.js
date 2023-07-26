@@ -29,6 +29,7 @@ const app = require('express')();
 const bodyParser = require('body-parser');
 
 const fulfillOrder = async (payment_link_id, quantity) => {
+  // It might be possible that the payment link was generated from elsewhere, and not in the redis, so handle that case
   var user_id = await redisClient.hGet(config.redisPaymentKey, payment_link_id)
   var credits_left = parseInt(await redisClient.hGet(config.redisCreditsKey, user_id))
   if(credits_left)
