@@ -18,6 +18,6 @@ COPY ./.env /run/.env
 COPY ./config.json /run/config.json
 
 # 
-CMD ["python", "server.py"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "9000"]
 
 EXPOSE 9000 6379
