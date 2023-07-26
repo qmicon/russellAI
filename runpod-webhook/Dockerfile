@@ -2,20 +2,20 @@
 FROM python:3.10.5
 
 # 
-WORKDIR .
+WORKDIR /run/code
 
 # 
-COPY requirements.txt requirements.txt
+COPY ./runpod-webhook/requirements.txt /run/code/requirements.txt
 
 # 
 RUN pip install -r requirements.txt
 
 # 
-COPY server.py server.py
+COPY ./runpod-webhook/server.py /run/code/server.py
 
-COPY ../.env ../.env
+COPY ./.env /run/.env
 
-COPY ../config.json ../config.json
+COPY ./config.json /run/config.json
 
 # 
 CMD ["python", "server.py"]

@@ -78,6 +78,9 @@ const sendFile = async (ids) => {
     var DMchannel = await user.createDM()
     var message = await DMchannel.messages.fetch(ids[1])
     await message.reply({
+        embeds: [{
+            title: 'Voice Note'
+        }],
         files: [{
             attachment: `../files/wav-files/${ids[0]}_${ids[1]}.wav`,
             name: "russell AI voice note.wav"
