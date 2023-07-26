@@ -19,3 +19,5 @@ COPY ./config.json /run/config.json
 
 # 
 CMD ["python", "server.py"]
+
+EXPOSE 9000 6379

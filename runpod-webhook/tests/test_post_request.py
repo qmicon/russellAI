@@ -43,7 +43,9 @@ def post_webhook(body):
     headers = {
         "Content-Type": "application/json"  # Set the Content-Type as per your requirement
     }
-    response = requests.post("http://localhost:9000/write_audio", json=body, headers=headers)
+    server_ip = os.getenv("SERVER_IP")
+    response = requests.post(f"http://{server_ip}:9000/write_audio", json=body, headers=headers)
+    print(response)
     return response.json()
 
 with ThreadPoolExecutor(max_workers=len(results)) as pool:
