@@ -11,9 +11,11 @@ COPY requirementsothers.txt .
 COPY test_handler.py .
 COPY ./wav-files/ /tortoise-tts/tortoise/voices/custom/
 
-RUN pip install -r requirementsothers.txt
+RUN pip install -U scipy
 
 RUN pip install -r requirements.txt
+
+RUN pip install -r requirementsothers.txt
 
 RUN python setup.py install
 
