@@ -13,7 +13,7 @@ COPY ./wav-files/ /tortoise-tts/tortoise/voices/custom/
 
 RUN pip install -U scipy
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt; exit 0
 
 RUN pip install -r requirementsothers.txt
 
