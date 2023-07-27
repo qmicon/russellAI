@@ -1,4 +1,4 @@
-from python:3.11.1-buster
+from python:3.10.5
 
 # Define your working directory
 WORKDIR /
