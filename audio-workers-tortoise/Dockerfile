@@ -3,7 +3,7 @@ from python:3.11.1-buster
 # Define your working directory
 WORKDIR /
 
-RUN git clone https://github.com/jnordberg/tortoise-tts.git .
+RUN git clone https://github.com/jnordberg/tortoise-tts.git
 
 WORKDIR /tortoise-tts/
 
