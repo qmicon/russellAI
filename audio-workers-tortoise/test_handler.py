@@ -1,6 +1,9 @@
 import runpod
 import os
+import torch
 import torchaudio
+import torch.nn as nn
+import torch.nn.functional as F
 from tortoise.api import TextToSpeech
 from tortoise.utils.audio import load_voice
 from scipy.io.wavfile import read as read_wav
