@@ -231,6 +231,7 @@ client.on("messageCreate", async message => {
 
     await message.channel.send("You can ask me more on this topic or send '/start' to start a new conversation. Sending a voice note summary as well");
     var speakerMonologue = reply.SpeakerMonologue
+    speakerMonologue = speakerMonologue.trim().split(/[\s,\t,\n]+/).join(' ');
     await redisClient.hSet(config.redisSummaryKey, user_id, speakerMonologue)
     var cost = aicompletion.data.usage.prompt_tokens*config.chatGPT4kInputPricePer1kTokensInUSD/1000 + aicompletion.data.usage.completion_tokens*config.chatGPT4kOutputPricePer1kTokensInUSD/1000
     var total_tokens = aicompletion.data.usage.total_tokens
