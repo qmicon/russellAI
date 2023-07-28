@@ -15,7 +15,6 @@ with open("../config.json", "r") as config_file:
     config_data = json.load(config_file)
 
 class Output(BaseModel):
-    timeTakenMs: float
     audio: list[float]
 
 class Status(BaseModel):
