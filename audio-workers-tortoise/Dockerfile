@@ -1,4 +1,4 @@
-from python:3.10.5
+from python:3.9
 
 # Define your working directory
 WORKDIR /
