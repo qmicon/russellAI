@@ -17,6 +17,7 @@ voice_samples, conditioning_latents = load_voice(CUSTOM_VOICE_NAME)
 preset = "ultra_fast"
 
 def handler(event):
+    # Add a cryptographic based verification on the token generated for webhook endpoint in order to verify if the webhook POST was called by runpod server
     print(event)
     prompt = event['input']['prompt']
     gen = tts.tts_with_preset(prompt, voice_samples=voice_samples, conditioning_latents=conditioning_latents,

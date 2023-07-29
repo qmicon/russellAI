@@ -17,10 +17,11 @@ export const splitMessageBySentence = (message, mode) => {
         }
       }
       else if (mode === "word") {
+        // DONE: add one more check where if the first sentence (after currentChunk was reset) is more than word limit, still push it to the chunk list
         const maxWords = config.audioWordLimit
         var checkSentence = currentChunk + sentence
         var wordLen = checkSentence.split(/(\s)/).filter((x) => x.trim().length>0).length
-        if(wordLen > maxWords) {
+        if(wordLen > maxWords && currentChunk !== "") {
           chunks.push(currentChunk.trim());
           currentChunk = "";
         }

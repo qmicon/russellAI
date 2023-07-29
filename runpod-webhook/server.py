@@ -41,7 +41,7 @@ async def init_redis():
 async def close_redis():
     await app.redis.close()
 
-# Write data to Redis using Redis Streams or to a file based on the config
+# change the post endpoint to include a token that it valid for one POST call, use redis set and hash table to manage it
 @app.post("/write_audio", status_code=200)
 async def write_audio(status: Status):
     try:
