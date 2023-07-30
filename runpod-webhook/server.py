@@ -75,6 +75,7 @@ async def write_audio(status: Status):
                 await remove_file_task
 
             audio_array = np.concatenate(audio_arr, axis=-1)
+            audio_array = np.int16(audio_array * 32767)
             write_audio_coroutine = asyncio.to_thread(write_wav, f"../files/wav-files/{user_id}_{message_id}.wav", 24000, audio_array)
             write_audio_task = asyncio.create_task(write_audio_coroutine)
             await write_audio_task
