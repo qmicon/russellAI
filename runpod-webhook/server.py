@@ -40,7 +40,7 @@ async def init_redis():
 @app.on_event("shutdown")
 async def close_redis():
     await app.redis.close()
-
+# add cost tracking
 # change the post endpoint to include a token that it valid for one POST call, use redis set and hash table to manage it
 @app.post("/write_audio", status_code=200)
 async def write_audio(status: Status):
