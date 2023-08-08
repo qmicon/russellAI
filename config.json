@@ -9,7 +9,7 @@
   "chatGPT4kInputPricePer1kTokensInUSD": 0.0015,
   "chatGPT4kOutputPricePer1kTokensInUSD": 0.002,
   "discordCharacterLimit": 2000,
-  "audioWordLimit": 25,
+  "audioWordLimit": 3,
   "botCreditsPriceID": "price_1NUEODSEJHL3ATe22b52Ym9x",
   "rupodApiEndpoint": "https://api.runpod.ai/v2/",
   "runpodDeploymentID": "mixuxm6y5hsjns",
