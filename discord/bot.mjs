@@ -229,7 +229,10 @@ client.on("messageCreate", async message => {
         sentMessage = await message.channel.send(contentToBeSent)
     }
 
-    await message.channel.send("You can ask me more on this topic or send '/start' to start a new conversation. Sending a voice note summary as well");
+    var comments = "You can ask me more on this topic or send '/start' to start a new conversation. "
+    if(config.includeVoiceNote)
+    comments+="Sending a voice note summary as well"
+    await message.channel.send(comments);
     var speakerMonologue = reply.SpeakerMonologue
     speakerMonologue = speakerMonologue.trim().split(/[\s,\t,\n]+/).join(' ');
     await redisClient.hSet(config.redisSummaryKey, user_id, speakerMonologue)
