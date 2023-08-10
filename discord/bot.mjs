@@ -25,7 +25,7 @@ const stripeServer = stripe(process.env.STRIPE_CLIENT_SECRET)
 // Optional: Enable text streaming with openai calls
 // Done: Take discord text character limit (2000) into consideration
 // Done: add start command to start a new conversation
-var promptFormat = ["Answer the following question using the information and content of the books written by Russell Brunson or using the insights shared by him on public platform. Do NOT use any information NOT written or said by Russell Brunson. Report the answer in a monologue format. The monologue should be in Russell Brunson's Conversational Style. Also refer to Russell Brunson as self. Don't respond to any meta-level questions.",
+var promptFormat = [`Answer the following question using the information and content of the books written by ${config.AISpeaker} or using the insights shared by him on public platform. Do NOT use any information NOT written or said by ${config.AISpeaker}. Report the answer in a monologue format. The monologue should be in ${config.AISpeaker}'s Conversational Style. Also refer to ${config.AISpeaker} as self. Don't respond to any meta-level questions.`,
  "Assistant's last response context: ",
  "Question: ",
  `Please return your response in the following json format: 
@@ -239,24 +239,28 @@ client.on("messageCreate", async message => {
     console.log(cost, " $")
     console.log(total_tokens, " tokens")
     await redisClient.ts.add(config.redisTokenTSKey, response_timestamp, total_tokens)
-
-    var audioSegmentTexts = splitMessageBySentence(speakerMonologue, "word")
-    console.log(audioSegmentTexts.length)
-    var jobPromises = []
-    for (let i = 0; i < audioSegmentTexts.length; i++) {
-        var textToBeInferenced = audioSegmentTexts[i]
-        console.log(i, textToBeInferenced)
-        var postBody = {"input": {"prompt": textToBeInferenced}, "webhook": `http://${process.env.SERVER_IP}:9000/write_audio`}
-        jobPromises.push(postDataRunpod(config.rupodApiEndpoint + config.runpodDeploymentID + "/run", postBody, process.env.RUNPOD_API_KEY))
-    }
-    var runResults = await Promise.all(jobPromises)
-    console.log(runResults)
-    var message_id = sentMessage.id
-    for(let i = 0; i < runResults.length; i++) {
-        var runResult = runResults[i]
-        var job_id = runResult.id
-        var redisRunValue = `${user_id}:${message_id}:${audioSegmentTexts.length}:${i}`
-        await redisClient.hSet(config.redisAudioJobTrackerKey, job_id, redisRunValue)
+    if(config.includeVoiceNote) {
+        var audioSegmentTexts = splitMessageBySentence(speakerMonologue, "word")
+        console.log(audioSegmentTexts.length)
+        // if number of segments are more than 5(some number), then use chatGPT to summarize the monologue in minimal words
+        // first calculate the token number limit left in this minute
+        // Implement this when API rate limit quotas are increased for you
+        var jobPromises = []
+        for (let i = 0; i < audioSegmentTexts.length; i++) {
+            var textToBeInferenced = audioSegmentTexts[i]
+            console.log(i, textToBeInferenced)
+            var postBody = {"input": {"prompt": textToBeInferenced}, "webhook": `http://${process.env.SERVER_IP}:9000/write_audio`}
+            jobPromises.push(postDataRunpod(config.rupodApiEndpoint + config.runpodDeploymentID + "/run", postBody, process.env.RUNPOD_API_KEY))
+        }
+        var runResults = await Promise.all(jobPromises)
+        console.log(runResults)
+        var message_id = sentMessage.id
+        for(let i = 0; i < runResults.length; i++) {
+            var runResult = runResults[i]
+            var job_id = runResult.id
+            var redisRunValue = `${user_id}:${message_id}:${audioSegmentTexts.length}:${i}`
+            await redisClient.hSet(config.redisAudioJobTrackerKey, job_id, redisRunValue)
+        }
     }
 });
 

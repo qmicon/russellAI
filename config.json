@@ -1,5 +1,7 @@
 {
   "userCooldownMs": 20000,
+  "AISpeaker": "Osho",
+  "includeVoiceNote": false,
   "redisCooldownKey": "user-last-message-time-discord",
   "redisSummaryKey": "bot-last-message-summary-discord",
   "chatgptTPM": 89000,
