@@ -26,7 +26,7 @@ class Status(BaseModel):
     output: Output
 
 # logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
-
+logging.basicConfig(level=logging.INFO)
 # get root logger
 logger = logging.getLogger(__name__)
 
