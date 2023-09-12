@@ -8,9 +8,14 @@ ENV NODE_ENV development
 WORKDIR /express-docker
 
 # Copying all the files in our project
-COPY . .
+COPY ./stripe-webhook /express-docker/stripe-webhook
 
 #TODO: Copy env and config from root dir
+
+COPY ./.env /express-docker/stripe-webhook/.env
+COPY ./config.json /express-docker/stripe-webhook/config.json
+
+WORKDIR /express-docker/stripe-webhook
 
 # Installing dependencies
 RUN npm install
