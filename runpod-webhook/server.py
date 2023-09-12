@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Body
 import aioredis
+import logging
 import asyncio
 import os
 import json
@@ -24,6 +25,11 @@ class Status(BaseModel):
     status: str = "COMPLETED"
     output: Output
 
+# logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
+
+# get root logger
+logger = logging.getLogger(__name__)
+
 app = FastAPI()
 
 # Redis connection pool initialization and cleanup
@@ -45,6 +51,7 @@ async def close_redis():
 @app.post("/write_audio", status_code=200)
 async def write_audio(status: Status):
     try:
+        logger.info(f"job id: {str(status.id)}\ndelay time: {status.delayTime}\n execution time: {status.executionTime}")
         audio_arr = np.array(status.output.audio)
         write_job_coroutine = asyncio.to_thread(write_wav, f"../files/wav-files/{status.id}.wav", 24000, audio_arr)
         write_job_task = asyncio.create_task(write_job_coroutine)

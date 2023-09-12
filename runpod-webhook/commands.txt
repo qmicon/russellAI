@@ -1,0 +1,2 @@
+docker build -f runpod-webhook/Dockerfile -t runpod-webhook:latest .
+docker run -it -d -v ./files/:/run/files/ --network host --name audio-hook runpod-webhook:latest
