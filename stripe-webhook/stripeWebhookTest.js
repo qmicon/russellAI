@@ -31,7 +31,7 @@ const app = require('express')();
 const bodyParser = require('body-parser');
 
 const fulfillOrder = async (payment_link_id, quantity) => {
-  // It might be possible that the payment link was generated from elsewhere, and not in the redis, so handle that case
+  // also pass the total price paid and currency type from the event object to fulfillOrder function for mongoDB logging
   var app_id = await redisClient.hGet(local_config.redisPaymentToAppKey, payment_link_id)
   if(!app_id) {
     console.log("app-id not found for this payment", payment_link_id)
