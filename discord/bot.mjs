@@ -83,7 +83,7 @@ const sendFile = async (ids) => {
         }],
         files: [{
             attachment: `../files/wav-files/${ids[0]}_${ids[1]}.wav`,
-            name: "russell AI voice note.wav"
+            name: `${config.AISpeaker} AI voice note.wav`
         }]
     })
     fs.unlink(`../files/wav-files/${ids[0]}_${ids[1]}.wav`,function(err){
@@ -142,6 +142,7 @@ client.on("messageCreate", async message => {
     }
 
     if(message.content === "/balance") {
+        // put a check on the existence of the key hexists
         var balance = await redisClient.hGet(config.redisCreditsKey, user_id);
         await message.channel.send(`You have ${balance} queries left.`)
         return
