@@ -21,7 +21,7 @@ WORKDIR /express-docker/stripe-webhook
 RUN npm install
 
 # Starting our application
-CMD [ "node", "stripeWebhook.js" ]
+CMD [ "node", "stripeWebhookTest.js" ]
 
 # Exposing server port
 EXPOSE 4242 6379

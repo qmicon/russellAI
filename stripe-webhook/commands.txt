@@ -1,2 +1,2 @@
-docker build -f stripe-webhook/Dockerfile -t stripe-listener:latest .
-docker run -d -it --network host --name stripe stripe-listener:latest
+docker build -f stripe-webhook/Dockerfile.testMode -t stripe-listener-test:latest .
+docker run -d -it --network host --name stripe-test stripe-listener-test:latest

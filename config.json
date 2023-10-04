@@ -2,6 +2,7 @@
   "userCooldownMs": 20000,
   "AISpeaker": "Osho",
   "includeVoiceNote": false,
+  "redisAppPaymentModel": "stripe-app-id-to-payment-model",
   "redisCooldownKey": "user-last-message-time-discord",
   "redisSummaryKey": "bot-last-message-summary-discord",
   "chatgptTPM": 89000,
