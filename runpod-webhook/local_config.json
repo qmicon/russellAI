@@ -1,0 +1,4 @@
+{
+  "redisAudioStatusTrackerKey": "runpod-user-id:message-id:total-segments:index-to-completed-audio-job-id",
+  "redisAudioConcatJobStartKey": "runpod-user-id:message-id-set"
+}

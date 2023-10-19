@@ -1,0 +1,27 @@
+# Fetching the minified node image on apline linux
+FROM node:slim
+
+# Declaring env
+ENV NODE_ENV development
+
+# Setting up the work directory
+WORKDIR /express-docker
+
+# Copying all the files in our project
+COPY ./stripe-webhook /express-docker/stripe-webhook
+
+#TODO: Copy env and config from root dir
+
+COPY ./.env /express-docker/stripe-webhook/.env
+COPY ./config.json /express-docker/stripe-webhook/config.json
+
+WORKDIR /express-docker/stripe-webhook
+
+# Installing dependencies
+RUN npm install
+
+# Starting our application
+CMD [ "node", "stripeWebhookLive.js" ]
+
+# Exposing server port
+EXPOSE 2020 6379

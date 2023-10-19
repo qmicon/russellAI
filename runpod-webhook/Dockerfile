@@ -13,6 +13,8 @@ RUN pip install -r requirements.txt
 # 
 COPY ./runpod-webhook/server.py /run/code/server.py
 
+COPY ./runpod-webhook/local_config.json /run/local_config.json
+
 COPY ./.env /run/.env
 
 COPY ./config.json /run/config.json

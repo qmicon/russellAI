@@ -9,7 +9,7 @@ WORKDIR /tortoise-tts/
 
 COPY requirementsothers.txt .
 COPY test_handler.py .
-COPY ./wav-files/ /tortoise-tts/tortoise/voices/custom/
+COPY ./wav-files/ /tortoise-tts/tortoise/voices/
 
 RUN pip install -U scipy
 

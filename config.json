@@ -16,9 +16,8 @@
   "botCreditsPriceID": "price_1NUEODSEJHL3ATe22b52Ym9x",
   "rupodApiEndpoint": "https://api.runpod.ai/v2/",
   "runpodDeploymentID": "mixuxm6y5hsjns",
-  "redisAudioJobTrackerKey": "audio-job-id-to-user-id:message-id:total-segments:index",
-  "redisAudioStatusTrackerKey": "user-id:message-id:total-segments:index-to-completed-audio-job-id",
-  "redisAudioConcatJobStartKey": "user-id:message-id-set",
-  "redisAudioStreamKey": "downloaded-audio",
-  "redisAudioStreamConsumerGroup": "consume"
+  "redisAudioJobTrackerKey": "runpod-audio-job-id-to-user-id:message-id:total-segments:index",
+  "redisAudioStreamKeySuffix": "-downloaded-audio",
+  "redisAudioStreamConsumerGroup": "consume",
+  "appId": "aiversion-discord-beta"
 }

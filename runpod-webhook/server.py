@@ -15,8 +15,12 @@ load_dotenv(dotenv_path="../.env")
 with open("../config.json", "r") as config_file:
     config_data = json.load(config_file)
 
+with open("../local_config.json", "r") as local_config_file:
+    local_config_data = json.load(local_config_file)
+
 class Output(BaseModel):
     audio: list[float]
+    aiversionId: str
 
 class Status(BaseModel):
     delayTime: int
@@ -59,16 +63,16 @@ async def write_audio(status: Status):
         getVal = await app.redis.hget(config_data["redisAudioJobTrackerKey"], str(status.id))
         user_id, message_id, total_count, index = getVal.split(":")
         statusTrackerKey = f"{user_id}:{message_id}:{total_count}:{index}"
-        await app.redis.hset(config_data["redisAudioStatusTrackerKey"], statusTrackerKey, str(status.id))
+        await app.redis.hset(local_config_data["redisAudioStatusTrackerKey"], statusTrackerKey, str(status.id))
 
         tracker_list = []
         for i in range(int(total_count)):
-            job_id = await app.redis.hget(config_data["redisAudioStatusTrackerKey"], f"{user_id}:{message_id}:{total_count}:{i}")
+            job_id = await app.redis.hget(local_config_data["redisAudioStatusTrackerKey"], f"{user_id}:{message_id}:{total_count}:{i}")
             if job_id:
                 tracker_list.append(job_id)
         
         if len(tracker_list) == int(total_count):
-            is_not_done = await app.redis.sadd(config_data["redisAudioConcatJobStartKey"], f"{user_id}:{message_id}")
+            is_not_done = await app.redis.sadd(local_config_data["redisAudioConcatJobStartKey"], f"{user_id}:{message_id}")
             if not is_not_done:
                 return {"status": "success"}
             audio_arr = []
@@ -83,12 +87,13 @@ async def write_audio(status: Status):
 
             audio_array = np.concatenate(audio_arr, axis=-1)
             audio_array = np.int16(audio_array * 32767)
-            write_audio_coroutine = asyncio.to_thread(write_wav, f"../files/wav-files/{user_id}_{message_id}.wav", 24000, audio_array)
+            write_audio_coroutine = asyncio.to_thread(write_wav, f"../files/wav-files/{str(status.output.aiversionId)}_{user_id}_{message_id}.wav", 24000, audio_array)
             write_audio_task = asyncio.create_task(write_audio_coroutine)
             await write_audio_task
-            await app.redis.xadd(config_data["redisAudioStreamKey"], {"message": f"{user_id}:{message_id}"}, "*", 2000)
+            await app.redis.xadd(f"{config_data['appId']}-{str(status.output.aiversionId)}{config_data['redisAudioStreamKeySuffix']}", {"message": f"{user_id}:{message_id}"}, "*", 2000)
         return {"status": "success"}
     except Exception as e:
+        logger.info(f"error while processing runpod webhook call: {e}")
         raise HTTPException(status_code=500, detail=e)
 
 if  __name__ == '__main__':

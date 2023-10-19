@@ -92,7 +92,7 @@ const sendFile = async (ids) => {
    }) 
 }
 async function consumeRedisStream() {
- var res = await redisClient.xReadGroup(config.redisAudioStreamConsumerGroup, "A", {key: config.redisAudioStreamKey, id: '>'})
+ var res = await redisClient.xReadGroup("consumer group name should be aiversionId fetched from app specific config", "A", {key: config.redisAudioStreamKey, id: '>'})
  if(!res) return;
  var messages = res[0].messages
  for(let i=0; i<messages.length; i++) {
@@ -253,7 +253,7 @@ client.on("messageCreate", async message => {
         for (let i = 0; i < audioSegmentTexts.length; i++) {
             var textToBeInferenced = audioSegmentTexts[i]
             console.log(i, textToBeInferenced)
-            var postBody = {"input": {"prompt": textToBeInferenced}, "webhook": `http://${process.env.SERVER_IP}:9000/write_audio`}
+            var postBody = {"input": {"prompt": textToBeInferenced, "aiversionId": "Fetch from app_specific config"}, "webhook": `http://${process.env.SERVER_IP}:9000/write_audio`}
             jobPromises.push(postDataRunpod(config.rupodApiEndpoint + config.runpodDeploymentID + "/run", postBody, process.env.RUNPOD_API_KEY))
         }
         var runResults = await Promise.all(jobPromises)
