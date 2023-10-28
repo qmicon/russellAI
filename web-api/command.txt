@@ -1,0 +1,5 @@
+docker build -f web-api/Dockerfile -t aiversion-beta-webapi:latest .
+docker run -d -it --network host --name aiv-webapi aiversion-beta-webapi:latest
+
+For docker windows, do:
+docker run -d -it -p 3292:3292 -e SERVER_IP=<WSL IPv4 Address> --name aiv-webapi aiversion-beta-webapi:latest

@@ -1,5 +1,11 @@
 docker build -f stripe-webhook/Dockerfile.testMode -t stripe-listener-test:latest .
 docker run -d -it --network host --name stripe-test stripe-listener-test:latest
 
+For docker windows, do:
+docker run -d -it -p 4242:4242 -e SERVER_IP=<WSL IPv4 Address> --name stripe-test stripe-listener-test:latest
+
 docker build -f stripe-webhook/Dockerfile.liveMode -t stripe-listener-live:latest .
 docker run -d -it --network host --name stripe-live stripe-listener-live:latest
+
+For docker windows, do:
+docker run -d -it -p 2020:2020 -e SERVER_IP=<WSL IPv4 Address> --name stripe-live stripe-listener-live:latest

@@ -1,2 +1,5 @@
 docker build -f runpod-webhook/Dockerfile -t runpod-webhook:latest .
 docker run -it -d -v ./files/:/run/files/ --network host --name audio-hook runpod-webhook:latest
+
+For docker windows, do:
+docker run -d -it -v ./files/:/run/files/ -p 9000:9000 -e SERVER_IP=<WSL IPv4 Address> --name audio-hook runpod-webhook:latest
