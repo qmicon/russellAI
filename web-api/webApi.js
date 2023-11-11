@@ -21,7 +21,11 @@ redisClient.on('error', err => console.log('Redis Server Error', err));
 redisClient.connect().then(() => console.log("redis connected"));
 
 // Using Express
-const app = require('express')();
+const express = require('express');
+const bodyParser = require('body-parser');
+const Joi = require('joi');
+const app = express();
+const apiRouter = express.Router();
 
 const verifyToken = (req, res, next) => {
     // Get the authorization header
@@ -45,11 +49,45 @@ const verifyToken = (req, res, next) => {
     }
   };
 
-app.use(verifyToken)
-
-app.get('/ping', (req, res) => {
+apiRouter.get('/ping', (req, res) => {
     console.log("API called")
     res.json({ message: 'Server is up and running' });
   });
+
+
+const appPaymentBodySchema = Joi.object({
+  financing_model: Joi.string().valid('user_level', 'app_level').required(),
+  pricing_model: Joi.string().valid('credit_based', 'balance_based')
+})
+apiRouter.post('/stripe/app_payment_model', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+    const payload = req.body.toString();
+    const params = req.query;
+    console.log(params)
+    try {
+      let body = JSON.parse(payload)
+      console.log("body", body)
+      const { error } = appPaymentBodySchema.validate(body, { abortEarly: false });
+
+      if (error) {
+        // Handling error due to incorrect data
+        const errorMessage = error.details.map(detail => detail.message);
+        console.log(errorMessage)
+        return res.status(400).json({ error: errorMessage });
+      }
+      console.log("appId", params.app_id)
+      let pricing_model = 'credit_based'
+      if('pricing_model' in body) 
+      pricing_model = body.pricing_model;
+      body = {...body, pricing_model: pricing_model}
+      await redisClient.hSet(config.redisAppPaymentModel, params.app_id, JSON.stringify(body))
+      console.log('/stripe/app_payment_model executed')
+      res.json('/stripe/app_payment_model executed');
+    } catch (error) {
+      console.log('/stripe/app_payment_model', error)
+      res.status(500).json({error: error.stack});
+    }
+});
+
+app.use('/api', verifyToken, apiRouter);
 
 app.listen(3292, () => console.log('Web API running on port 3292'));

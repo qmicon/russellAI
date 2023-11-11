@@ -1,5 +1,5 @@
 # Fetching the minified node image on apline linux
-FROM node:slim
+FROM node:lts-slim
 
 # Declaring env
 ENV NODE_ENV development
