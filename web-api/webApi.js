@@ -111,6 +111,65 @@ apiRouter.get('/stripe/app_payment_model',  async (req, res) =>{
   }
 })
 
+const currencyCodes = require('currency-codes');
+const currencyDetailsBodySchema = Joi.object({
+  name: Joi.string().required(),
+  stripe_price_id: Joi.string().regex(/^price_[A-Za-z0-9]{24}$/).required()
+})
+apiRouter.post('/aiversion_discord_beta/currency', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const payload = req.body.toString();
+  const params = req.query;
+  console.log(params)
+  try {
+    let body = JSON.parse(payload)
+    console.log("body", body)
+    const { error } = currencyDetailsBodySchema.validate(body, { abortEarly: false });
+
+    if (error) {
+      // Handling error due to incorrect data
+      const errorMessage = error.details.map(detail => detail.message);
+      console.log(errorMessage)
+      return res.status(400).json({ error: errorMessage });
+    }
+    console.log("currency-symbol", params.symbol)
+    const isValidCurrencyCode = currencyCodes.codes().includes(params.symbol)
+    if(! isValidCurrencyCode) {
+      console.log(`${params.symbol} is not a valid ISO 4217 currency code`)
+      return res.status(400).send(`${params.symbol} is not a valid ISO 4217 currency code\nProvide a valid symbol param`);
+    }
+    await redisClient.hSet(config.redisCurrencyDetailsKey, params.symbol, JSON.stringify(body))
+    console.log('POST /aiversion_discord_beta/currency executed')
+    res.json('/aiversion_discord_beta/currency executed');
+  } catch (error) {
+    console.log('POST /aiversion_discord_beta/currency', error)
+    res.status(500).json({error: error.stack});
+  }
+});
+
+apiRouter.get('/aiversion_discord_beta/currency',  async (req, res) =>{
+  const params = req.query;
+  console.log(params)
+  try {
+    if('symbol' in params) {
+      let redisJsonVal = await redisClient.hGet(config.redisCurrencyDetailsKey, params.symbol);
+      console.log(`GET /aiversion_discord_beta/currency?symbol=${params.symbol}`, JSON.parse(redisJsonVal))
+      res.json({currency_details: JSON.parse(redisJsonVal)})
+    }
+    else {
+      let redisJsonVal = await redisClient.hGetAll(config.redisCurrencyDetailsKey)
+      for(const key in redisJsonVal) {
+        redisJsonVal[key] = JSON.parse(redisJsonVal[key])
+      }
+      console.log('GET /aiversion_discord_beta/currency', redisJsonVal)
+      res.json({currency_list: redisJsonVal})
+    }
+  } catch (error) {
+    console.log('GET /aiversion_discord_beta/currency', error)
+    res.status(500).json({error: error.stack});
+  }
+})
+
+
 app.use('/api', verifyToken, apiRouter);
 
 app.listen(3292, () => console.log('Web API running on port 3292'));
