@@ -169,6 +169,78 @@ apiRouter.get('/aiversion_discord_beta/currency',  async (req, res) =>{
   }
 })
 
+const whiteListUserBodySchema = Joi.object({
+  username: Joi.string().required()
+})
+apiRouter.post('/aiversion_discord_beta/whitelist_user', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const payload = req.body.toString();
+  const params = req.query;
+  console.log(params)
+  try {
+    let body = JSON.parse(payload)
+    console.log("body", body)
+    const { error } = whiteListUserBodySchema.validate(body, { abortEarly: false });
+
+    if (error) {
+      // Handling error due to incorrect data
+      const errorMessage = error.details.map(detail => detail.message);
+      console.log(errorMessage)
+      return res.status(400).json({ error: errorMessage });
+    }
+    console.log("user-id", params.user_id)
+    const discordIdRegex = /^[0-9]{18}$/
+    if(! discordIdRegex.test(params.user_id)) {
+      console.log(`${params.user_id} is not a valid discord user id`)
+      return res.status(400).send(`${params.user_id} is not a valid discord user id\nProvide a valid user_id param`);
+    }
+    body = {...body, "is_whitelisted": true}
+    await redisClient.hSet(config.redisWhitelistedUsersKey, params.user_id, JSON.stringify(body))
+    console.log('POST /aiversion_discord_beta/whitelist_user executed')
+    res.json('/aiversion_discord_beta/whitelist_user executed');
+  } catch (error) {
+    console.log('POST /aiversion_discord_beta/whitelist_user', error)
+    res.status(500).json({error: error.stack});
+  }
+});
+
+apiRouter.delete('/aiversion_discord_beta/whitelist_user', async (req, res) => {
+  const params = req.query;
+  console.log(params)
+  try {
+    let redisJsonVal = await redisClient.hGet(config.redisWhitelistedUsersKey, params.user_id);
+    redisJsonVal = JSON.parse(redisJsonVal)
+    redisJsonVal.is_whitelisted = false
+    await redisClient.hSet(config.redisWhitelistedUsersKey, params.user_id, JSON.stringify(redisJsonVal))
+    console.log('DELETE /aiversion_discord_beta/whitelist_user executed')
+    res.json('/aiversion_discord_beta/whitelist_user executed');
+  } catch (error) {
+    console.log('DELETE /aiversion_discord_beta/whitelist_user', error)
+    res.status(500).json({error: error.stack});
+  }
+})
+
+apiRouter.get('/aiversion_discord_beta/whitelist_user',  async (req, res) =>{
+  const params = req.query;
+  console.log(params)
+  try {
+    if('user_id' in params) {
+      let redisJsonVal = await redisClient.hGet(config.redisWhitelistedUsersKey, params.user_id);
+      console.log(`GET /aiversion_discord_beta/whitelist_user?user_id=${params.user_id}`, JSON.parse(redisJsonVal))
+      res.json({user: JSON.parse(redisJsonVal)})
+    }
+    else {
+      let redisJsonVal = await redisClient.hGetAll(config.redisWhitelistedUsersKey)
+      for(const key in redisJsonVal) {
+        redisJsonVal[key] = JSON.parse(redisJsonVal[key])
+      }
+      console.log('GET /aiversion_discord_beta/whitelist_user', redisJsonVal)
+      res.json({user_list: redisJsonVal})
+    }
+  } catch (error) {
+    console.log('GET /aiversion_discord_beta/whitelist_user', error)
+    res.status(500).json({error: error.stack});
+  }
+})
 
 app.use('/api', verifyToken, apiRouter);
 

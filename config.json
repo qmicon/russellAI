@@ -20,5 +20,6 @@
   "redisAudioStreamKeySuffix": "-downloaded-audio",
   "redisAudioStreamConsumerGroup": "consume",
   "appId": "aiversion-discord-beta",
-  "redisCurrencyDetailsKey": "aiversion-discord-beta-supported-currencies"
+  "redisCurrencyDetailsKey": "aiversion-discord-beta-supported-currencies",
+  "redisWhitelistedUsersKey": "aiversion-discord-beta-whitelisted-users"
 }
