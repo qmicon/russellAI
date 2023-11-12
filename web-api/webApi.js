@@ -80,13 +80,36 @@ apiRouter.post('/stripe/app_payment_model', bodyParser.raw({ type: 'application/
       pricing_model = body.pricing_model;
       body = {...body, pricing_model: pricing_model}
       await redisClient.hSet(config.redisAppPaymentModel, params.app_id, JSON.stringify(body))
-      console.log('/stripe/app_payment_model executed')
+      console.log('POST /stripe/app_payment_model executed')
       res.json('/stripe/app_payment_model executed');
     } catch (error) {
-      console.log('/stripe/app_payment_model', error)
+      console.log('POST /stripe/app_payment_model', error)
       res.status(500).json({error: error.stack});
     }
 });
+
+apiRouter.get('/stripe/app_payment_model',  async (req, res) =>{
+  const params = req.query;
+  console.log(params)
+  try {
+    if('app_id' in params) {
+      let redisJsonVal = await redisClient.hGet(config.redisAppPaymentModel, params.app_id);
+      console.log(`GET /stripe/app_payment_model?app_id=${params.app_id}`, JSON.parse(redisJsonVal))
+      res.json({payment_model: JSON.parse(redisJsonVal)})
+    }
+    else {
+      let redisJsonVal = await redisClient.hGetAll(config.redisAppPaymentModel)
+      for(const key in redisJsonVal) {
+        redisJsonVal[key] = JSON.parse(redisJsonVal[key])
+      }
+      console.log('GET /stripe/app_payment_model', redisJsonVal)
+      res.json({app_list: redisJsonVal})
+    }
+  } catch (error) {
+    console.log('GET /stripe/app_payment_model', error)
+    res.status(500).json({error: error.stack});
+  }
+})
 
 app.use('/api', verifyToken, apiRouter);
 
