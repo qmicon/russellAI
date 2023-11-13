@@ -21,5 +21,12 @@
   "redisAudioStreamConsumerGroup": "consume",
   "appId": "aiversion-discord-beta",
   "redisCurrencyDetailsKey": "aiversion-discord-beta-supported-currencies",
-  "redisWhitelistedUsersKey": "aiversion-discord-beta-whitelisted-users"
+  "redisWhitelistedUsersKey": "aiversion-discord-beta-whitelisted-users",
+  "redisGlobalStatesKey": "aiversion-discord-beta-global-states",
+  "redisGlobalStatesFields": {
+    "envMode": "env_mode",
+    "defaultVoiceNoteSwitch": "voice_note_switch_default_value",
+    "freeTextCredits": "free_text_credits_default_value",
+    "priceSuffix": "-price-in-standard-unit"
+  }
 }

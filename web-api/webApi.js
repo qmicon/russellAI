@@ -242,6 +242,191 @@ apiRouter.get('/aiversion_discord_beta/whitelist_user',  async (req, res) =>{
   }
 })
 
+const envModeBodySchema = Joi.object({
+  mode: Joi.string().valid('test', 'live').required()
+})
+apiRouter.post('/aiversion_discord_beta/env_mode', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const payload = req.body.toString();
+  try {
+    let body = JSON.parse(payload)
+    console.log("body", body)
+    const { error } = envModeBodySchema.validate(body, { abortEarly: false });
+
+    if (error) {
+      // Handling error due to incorrect data
+      const errorMessage = error.details.map(detail => detail.message);
+      console.log(errorMessage)
+      return res.status(400).json({ error: errorMessage });
+    }
+
+    await redisClient.hSet(config.redisGlobalStatesKey, config.redisGlobalStatesFields.envMode, body.mode)
+    console.log('POST /aiversion_discord_beta/env_mode executed')
+    res.json('/aiversion_discord_beta/env_mode executed');
+  } catch (error) {
+    console.log('POST /aiversion_discord_beta/env_mode', error)
+    res.status(500).json({error: error.stack});
+  }
+});
+
+apiRouter.get('/aiversion_discord_beta/env_mode',  async (req, res) =>{
+  try {
+    let redisJsonVal = await redisClient.hGet(config.redisGlobalStatesKey, config.redisGlobalStatesFields.envMode);
+    console.log('GET /aiversion_discord_beta/env_mode', redisJsonVal)
+    res.json({mode: redisJsonVal}) 
+  } catch (error) {
+    console.log('GET /aiversion_discord_beta/env_mode', error)
+    res.status(500).json({error: error.stack});
+  }
+})
+
+const voiceNoteSwitchBodySchema = Joi.object({
+  default_value: Joi.string().valid('on', 'off').required()
+})
+apiRouter.post('/aiversion_discord_beta/default_voice_note_switch', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const payload = req.body.toString();
+  try {
+    let body = JSON.parse(payload)
+    console.log("body", body)
+    const { error } = voiceNoteSwitchBodySchema.validate(body, { abortEarly: false });
+
+    if (error) {
+      // Handling error due to incorrect data
+      const errorMessage = error.details.map(detail => detail.message);
+      console.log(errorMessage)
+      return res.status(400).json({ error: errorMessage });
+    }
+
+    await redisClient.hSet(config.redisGlobalStatesKey, config.redisGlobalStatesFields.defaultVoiceNoteSwitch, body.default_value)
+    console.log('POST /aiversion_discord_beta/default_voice_note_switch executed')
+    res.json('/aiversion_discord_beta/default_voice_note_switch executed');
+  } catch (error) {
+    console.log('POST /aiversion_discord_beta/default_voice_note_switch', error)
+    res.status(500).json({error: error.stack});
+  }
+});
+
+apiRouter.get('/aiversion_discord_beta/default_voice_note_switch',  async (req, res) =>{
+  try {
+    let redisJsonVal = await redisClient.hGet(config.redisGlobalStatesKey, config.redisGlobalStatesFields.defaultVoiceNoteSwitch);
+    console.log('GET /aiversion_discord_beta/default_voice_note_switch', redisJsonVal)
+    res.json({default_value: redisJsonVal}) 
+  } catch (error) {
+    console.log('GET /aiversion_discord_beta/default_voice_note_switch', error)
+    res.status(500).json({error: error.stack});
+  }
+})
+
+const freeTextCreditsBodySchema = Joi.object({
+  default_value: Joi.number().integer().min(0).required()
+})
+apiRouter.post('/aiversion_discord_beta/free_text_credits', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const payload = req.body.toString();
+  try {
+    let body = JSON.parse(payload)
+    console.log("body", body)
+    const { error } = freeTextCreditsBodySchema.validate(body, { abortEarly: false });
+
+    if (error) {
+      // Handling error due to incorrect data
+      const errorMessage = error.details.map(detail => detail.message);
+      console.log(errorMessage)
+      return res.status(400).json({ error: errorMessage });
+    }
+
+    await redisClient.hSet(config.redisGlobalStatesKey, config.redisGlobalStatesFields.freeTextCredits, body.default_value)
+    console.log('POST /aiversion_discord_beta/free_text_credits executed')
+    res.json('/aiversion_discord_beta/free_text_credits executed');
+  } catch (error) {
+    console.log('POST /aiversion_discord_beta/free_text_credits', error)
+    res.status(500).json({error: error.stack});
+  }
+});
+
+apiRouter.get('/aiversion_discord_beta/free_text_credits',  async (req, res) =>{
+  try {
+    let redisJsonVal = await redisClient.hGet(config.redisGlobalStatesKey, config.redisGlobalStatesFields.freeTextCredits);
+    console.log('GET /aiversion_discord_beta/free_text_credits', redisJsonVal)
+    res.json({default_value: redisJsonVal}) 
+  } catch (error) {
+    console.log('GET /aiversion_discord_beta/free_text_credits', error)
+    res.status(500).json({error: error.stack});
+  }
+})
+
+
+// TODO: add enum validation in POST body
+apiRouter.post('/runpod/price', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const payload = req.body.toString();
+  try {
+    let body = JSON.parse(payload)
+    console.log("body", body)
+    for(const key in body) {
+      if(Number.isFinite(body[key]))
+      await redisClient.hSet(config.redisGlobalStatesKey, `runpod-${key}${config.redisGlobalStatesFields.priceSuffix}`, body[key])
+    }
+    console.log('POST /runpod/price executed')
+    res.json('/runpod/price executed');
+  } catch (error) {
+    console.log('POST /runpod/price', error)
+    res.status(500).json({error: error.stack});
+  }
+});
+
+apiRouter.get('/runpod/price',  async (req, res) =>{
+  try {
+    let redisJsonVal = await redisClient.hGetAll(config.redisGlobalStatesKey);
+    const pattern = new RegExp(`^runpod-.*${config.redisGlobalStatesFields.priceSuffix}$`);
+    const matchPattern = new RegExp(`^runpod-(.*)${config.redisGlobalStatesFields.priceSuffix}$`)
+    var returnVal = {}
+    for(const key in redisJsonVal) {
+      if(pattern.test(key))
+      returnVal[key.match(matchPattern)[1]] = parseFloat(redisJsonVal[key])
+    }
+    console.log('GET /runpod/price', returnVal)
+    res.json({dollars_per_second_usage: returnVal}) 
+  } catch (error) {
+    console.log('GET /runpod/price', error)
+    res.status(500).json({error: error.stack});
+  }
+})
+
+// TODO: add enum validation in POST body
+apiRouter.post('/openai/price', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const payload = req.body.toString();
+  try {
+    let body = JSON.parse(payload)
+    console.log("body", body)
+    for(const key in body) {
+      if(Number.isFinite(body[key]))
+      await redisClient.hSet(config.redisGlobalStatesKey, `openai-${key}${config.redisGlobalStatesFields.priceSuffix}`, body[key])
+    }
+    console.log('POST /openai/price executed')
+    res.json('/openai/price executed');
+  } catch (error) {
+    console.log('POST /openai/price', error)
+    res.status(500).json({error: error.stack});
+  }
+});
+
+apiRouter.get('/openai/price',  async (req, res) =>{
+  try {
+    let redisJsonVal = await redisClient.hGetAll(config.redisGlobalStatesKey);
+    const pattern = new RegExp(`^openai-.*${config.redisGlobalStatesFields.priceSuffix}$`);
+    const matchPattern = new RegExp(`^openai-(.*)${config.redisGlobalStatesFields.priceSuffix}$`)
+    var returnVal = {}
+    for(const key in redisJsonVal) {
+      if(pattern.test(key))
+      returnVal[key.match(matchPattern)[1]] = parseFloat(redisJsonVal[key])
+    }
+    console.log('GET /openai/price', returnVal)
+    res.json({dollars_per_1k_tokens_usage: returnVal}) 
+  } catch (error) {
+    console.log('GET /openai/price', error)
+    res.status(500).json({error: error.stack});
+  }
+})
+
+// TODO: Log the changes of POST/DELETE in mongoDB to maintain history of changes
 app.use('/api', verifyToken, apiRouter);
 
 app.listen(3292, () => console.log('Web API running on port 3292'));
