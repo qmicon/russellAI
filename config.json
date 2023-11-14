@@ -1,26 +1,22 @@
 {
+  "appId": "aiversion-discord-beta",
   "userCooldownMs": 20000,
-  "AISpeaker": "Osho",
-  "includeVoiceNote": false,
   "redisAppPaymentModel": "stripe-app-id-to-payment-model",
-  "redisCooldownKey": "user-last-message-time-discord",
-  "redisSummaryKey": "bot-last-message-summary-discord",
+  "redisCooldownKeySuffix": "-user-last-message-time-discord",
+  "redisSummaryKeySuffix": "-bot-last-message-summary-discord",
   "chatgptTPM": 89000,
   "redisTokenTSKey": "openai-token-used-per-query",
-  "redisPaymentKey": "payment-link-id-to-user-id",
-  "redisCreditsKey": "user-id-credits-left",
-  "chatGPT4kInputPricePer1kTokensInUSD": 0.0015,
-  "chatGPT4kOutputPricePer1kTokensInUSD": 0.002,
+  "redisPaymentKey": "aiversion-discord-beta-payment-link-id-to-user-id",
+  "redisCreditsKey": "aiversion-discord-beta-user-id-credits-left",
+  "redisFreeTextCreditsKey": "aiversion-discord-beta-user-id-free-text-credits-left",
+  "redisVoiceSwitchKey": "aiversion-discord-beta-user-id-voice-switch-state",
   "discordCharacterLimit": 2000,
   "audioWordLimit": 3,
-  "botCreditsPriceID": "price_1NUEODSEJHL3ATe22b52Ym9x",
   "rupodApiEndpoint": "https://api.runpod.ai/v2/",
   "runpodDeploymentID": "mixuxm6y5hsjns",
   "redisAudioJobTrackerKey": "runpod-audio-job-id-to-user-id:message-id:total-segments:index",
   "redisAudioStreamKeySuffix": "-downloaded-audio",
-  "redisAudioStreamConsumerGroup": "consume",
-  "appId": "aiversion-discord-beta",
-  "redisCurrencyDetailsKey": "aiversion-discord-beta-supported-currencies",
+  "redisCurrencyDetailsKeyPrefix": "aiversion-discord-beta-supported-currencies",
   "redisWhitelistedUsersKey": "aiversion-discord-beta-whitelisted-users",
   "redisGlobalStatesKey": "aiversion-discord-beta-global-states",
   "redisGlobalStatesFields": {
@@ -28,5 +24,6 @@
     "defaultVoiceNoteSwitch": "voice_note_switch_default_value",
     "freeTextCredits": "free_text_credits_default_value",
     "priceSuffix": "-price-in-standard-unit"
-  }
+  },
+  "openaiLLMmodel": "gpt-3.5-turbo-1106"
 }

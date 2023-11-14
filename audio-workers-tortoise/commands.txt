@@ -1,0 +1,2 @@
+docker build -f Dockerfile -t qmicon/russell-ai-tortoise:<version> .
+docker push qmicon/russell-ai-tortoise:<version>

@@ -132,12 +132,18 @@ apiRouter.post('/aiversion_discord_beta/currency', bodyParser.raw({ type: 'appli
       return res.status(400).json({ error: errorMessage });
     }
     console.log("currency-symbol", params.symbol)
+    console.log("env-mode", params.env_mode)
     const isValidCurrencyCode = currencyCodes.codes().includes(params.symbol)
     if(! isValidCurrencyCode) {
       console.log(`${params.symbol} is not a valid ISO 4217 currency code`)
       return res.status(400).send(`${params.symbol} is not a valid ISO 4217 currency code\nProvide a valid symbol param`);
     }
-    await redisClient.hSet(config.redisCurrencyDetailsKey, params.symbol, JSON.stringify(body))
+    const isValidEnvMode = ['test', 'live'].includes(params.env_mode)
+    if(! isValidEnvMode) {
+      console.log(`param env_mode should be in ['live', 'test'], it is ${params.env_mode}`)
+      return res.status(400).send(`${params.env_mode} is not a valid value for env_mode, should be in ['live', 'test']\nProvide a valid value`);
+    }
+    await redisClient.hSet(`${config.redisCurrencyDetailsKeyPrefix}-${params.env_mode}`, params.symbol, JSON.stringify(body))
     console.log('POST /aiversion_discord_beta/currency executed')
     res.json('/aiversion_discord_beta/currency executed');
   } catch (error) {
@@ -150,13 +156,21 @@ apiRouter.get('/aiversion_discord_beta/currency',  async (req, res) =>{
   const params = req.query;
   console.log(params)
   try {
+    if(! ('env_mode' in params)) {
+      return res.status(400).send(`env_mode is a required param, should be in ['live', 'test']`);
+    }
+    const isValidEnvMode = ['test', 'live'].includes(params.env_mode)
+    if(! isValidEnvMode) {
+      console.log(`param env_mode should be in ['live', 'test'], it is ${params.env_mode}`)
+      return res.status(400).send(`${params.env_mode} is not a valid value for env_mode, should be in ['live', 'test']\nProvide a valid value`);
+    }
     if('symbol' in params) {
-      let redisJsonVal = await redisClient.hGet(config.redisCurrencyDetailsKey, params.symbol);
+      let redisJsonVal = await redisClient.hGet(`${config.redisCurrencyDetailsKeyPrefix}-${params.env_mode}`, params.symbol);
       console.log(`GET /aiversion_discord_beta/currency?symbol=${params.symbol}`, JSON.parse(redisJsonVal))
       res.json({currency_details: JSON.parse(redisJsonVal)})
     }
     else {
-      let redisJsonVal = await redisClient.hGetAll(config.redisCurrencyDetailsKey)
+      let redisJsonVal = await redisClient.hGetAll(`${config.redisCurrencyDetailsKeyPrefix}-${params.env_mode}`)
       for(const key in redisJsonVal) {
         redisJsonVal[key] = JSON.parse(redisJsonVal[key])
       }
@@ -280,7 +294,7 @@ apiRouter.get('/aiversion_discord_beta/env_mode',  async (req, res) =>{
 })
 
 const voiceNoteSwitchBodySchema = Joi.object({
-  default_value: Joi.string().valid('on', 'off').required()
+  default_value: Joi.number().integer().min(0).max(1).required()
 })
 apiRouter.post('/aiversion_discord_beta/default_voice_note_switch', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
   const payload = req.body.toString();
