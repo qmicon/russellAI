@@ -32,7 +32,7 @@ const bodyParser = require('body-parser');
 
 const fulfillOrder = async (payment_link_id, quantity) => {
   // also pass the total price paid and currency type from the event object to fulfillOrder function for mongoDB logging
-  var app_id = await redisClient.hGet(local_config.redisPaymentToAppKey, payment_link_id)
+  var app_id = await redisClient.hGet(config.redisPaymentToAppKey, payment_link_id)
   if(!app_id) {
     console.log("app-id not found for this payment", payment_link_id)
     //logging it in mongodb as well

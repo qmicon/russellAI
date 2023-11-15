@@ -1,5 +1,4 @@
 {
-    "redisPaymentToAppKey": "stripe-payment-link-id-to-app-id",
     "redisSuffixUserLevelUserIDKey": "-payment-link-id-to-user-id",
     "redisSuffixUserLevelCreditsKey": "-user-id-credits-left",
     "redisSuffixAppLevelKey": "-global-states",

@@ -2,6 +2,7 @@
   "appId": "aiversion-discord-beta",
   "userCooldownMs": 20000,
   "redisAppPaymentModel": "stripe-app-id-to-payment-model",
+  "redisPaymentToAppKey": "stripe-payment-link-id-to-app-id",
   "redisCooldownKeySuffix": "-user-last-message-time-discord",
   "redisSummaryKeySuffix": "-bot-last-message-summary-discord",
   "chatgptTPM": 89000,

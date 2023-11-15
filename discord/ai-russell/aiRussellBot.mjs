@@ -190,6 +190,8 @@ client.on("messageCreate", async message => {
               },
             ],
           });
+
+        await redisClient.hSet(config.redisPaymentToAppKey, paymentLink.id, config.appId);
         await redisClient.hSet(config.redisPaymentKey, paymentLink.id, user_id);
         await message.channel.send(`${paymentLink.url}\n\nPlease make the payment to buy credits. send '/balance' to check your credit balance`);
         return
