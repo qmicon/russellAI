@@ -13,7 +13,7 @@ sentences = ["Ah, the wonderful world of pizza! I'm thrilled that you're eager t
 
 sentence_inputs = []
 for sentence in sentences:
-    sentence_inputs.append({"prompt": sentence, "aiversionId": "ai-hormozi"})
+    sentence_inputs.append({"prompt": sentence, "aiversionId": "ai-garyvee"})
 
 def run_worker(input):
     token = os.getenv("RUNPOD_API_KEY")
