@@ -25,7 +25,7 @@ class Output(BaseModel):
 class Status(BaseModel):
     delayTime: int
     executionTime: int
-    id: UUID
+    id: str
     status: str = "COMPLETED"
     output: Output
 
