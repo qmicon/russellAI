@@ -11,7 +11,7 @@ if [[ -n "${!ENV_VARIABLE}" ]]; then
   cp discord/ai-russell/aiRussellBot.mjs discord/ai-garyvee/aiGaryVeeBot.mjs
   cd discord/ai-garyvee
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    pm2 run aiGaryVeeBot.mjs
+    pm2 start --name "ai-garyvee" aiGaryVeeBot.mjs
   elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win32"* ]]; then
     node aiGaryVeeBot.mjs
   else
