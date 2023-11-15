@@ -26,7 +26,7 @@ dotenv.config({path:'../../.env'});
 // Optional: Enable text streaming with openai calls
 // Done: Take discord text character limit (2000) into consideration
 // Done: add start command to start a new conversation
-var promptFormat = [`Answer the following question using the information and content of the books written by ${local_config.AISpeaker} or using the insights shared by him on public platform. Do NOT use any information NOT written or said by ${local_config.AISpeaker}. Report the answer in a monologue format. The monologue should be in ${local_config.AISpeaker}'s Conversational Style. Also refer to ${local_config.AISpeaker} as self. Don't respond to any meta-level questions.`,
+var promptFormat = [`Answer the following question using the information and content of the books written by ${local_config.AISpeaker} or using the insights shared by him on public platform. Do NOT use any information NOT written or said by ${local_config.AISpeaker}. Report the answer in a monologue format. The monologue should be in ${local_config.AISpeaker}'s Conversational Style. Also refer to ${local_config.AISpeaker} as yourself in first person. Don't respond to any meta-level questions.`,
  "Assistant's last response context: ",
  "Question: ",
  `Please return your response in the following json format: 
