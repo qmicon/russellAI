@@ -203,7 +203,7 @@ client.on("messageCreate", async message => {
         if(whitelist_status) {
             whitelist_status = JSON.parse(whitelist_status)
             if(whitelist_status.is_whitelisted) {
-                await message.channel.send("You are a Whitelisted user, you can make unlimited questions without any cost!")
+                await message.channel.send("You are a Whitelisted user, you can ask unlimited questions without any cost!")
                 return
             }
         }
