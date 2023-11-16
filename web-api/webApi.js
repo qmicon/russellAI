@@ -202,7 +202,7 @@ apiRouter.post('/aiversion_discord_beta/whitelist_user', bodyParser.raw({ type: 
       return res.status(400).json({ error: errorMessage });
     }
     console.log("user-id", params.user_id)
-    const discordIdRegex = /^[0-9]{18}$/
+    const discordIdRegex = /^[0-9]{18,}$/
     if(! discordIdRegex.test(params.user_id)) {
       console.log(`${params.user_id} is not a valid discord user id`)
       return res.status(400).send(`${params.user_id} is not a valid discord user id\nProvide a valid user_id param`);
